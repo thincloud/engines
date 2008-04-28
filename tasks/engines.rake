@@ -35,11 +35,12 @@ namespace :db do
     task :all => [ 'db:migrate', 'db:migrate:plugins' ]
     
     desc 'Migrate plugins to current status.'
-    task :plugins => :environment do
+    task({:plugins => :environment}, :version) do |task, args|
+      version = args[:version] || ENV['VERSION']
       Engines.plugins.each do |plugin|
         next unless File.exists? plugin.migration_directory
         puts "Migrating plugin #{plugin.name} ..."
-        plugin.migrate
+        plugin.migrate(version ? version.to_i : nil)
       end
     end
 
